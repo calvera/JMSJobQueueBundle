@@ -2,7 +2,7 @@
 
 namespace JMS\JobQueueBundle\Twig;
 
-class JobQueueExtension extends \Twig_Extension
+class JobQueueExtension extends \Twig\Extension\AbstractExtension
 {
     private $linkGenerators = array();
 
@@ -14,22 +14,22 @@ class JobQueueExtension extends \Twig_Extension
     public function getTests()
     {
         return array(
-            new \Twig_SimpleTest('jms_job_queue_linkable', array($this, 'isLinkable'))
+            new \Twig\TwigFilter('jms_job_queue_linkable', array($this, 'isLinkable'))
         );
     }
 
     public function getFunctions()
     {
         return array(
-            new \Twig_SimpleFunction('jms_job_queue_path', array($this, 'generatePath'), array('is_safe' => array('html' => true)))
+            new \Twig\TwigFunction('jms_job_queue_path', array($this, 'generatePath'), array('is_safe' => array('html' => true)))
         );
     }
 
     public function getFilters()
     {
         return array(
-            new \Twig_SimpleFilter('jms_job_queue_linkname', array($this, 'getLinkname')),
-            new \Twig_SimpleFilter('jms_job_queue_args', array($this, 'formatArgs'))
+            new \Twig\TwigFilter('jms_job_queue_linkname', array($this, 'getLinkname')),
+            new \Twig\TwigFilter('jms_job_queue_args', array($this, 'formatArgs'))
         );
     }
 
