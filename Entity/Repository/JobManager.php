@@ -171,6 +171,30 @@ class JobManager
                    ->getOneOrNullResult();
     }
 
+    public function findLastJobForRelatedEntity($command, $relatedEntity, array $states = array())
+    {
+        list($relClass, $relId) = $this->getRelatedEntityIdentifier($relatedEntity);
+
+        $rsm = new ResultSetMappingBuilder($this->getJobManager());
+        $rsm->addRootEntityFromClassMetadata('JMSJobQueueBundle:Job', 'j');
+
+        $sql = "SELECT j.* FROM jms_jobs j INNER JOIN jms_job_related_entities r ON r.job_id = j.id WHERE r.related_class = :relClass AND r.related_id = :relId AND j.command = :command";
+        $params = new ArrayCollection();
+        $params->add(new Parameter('command', $command));
+        $params->add(new Parameter('relClass', $relClass));
+        $params->add(new Parameter('relId', $relId));
+
+        if ( ! empty($states)) {
+            $sql .= " AND j.state IN (:states)";
+            $params->add(new Parameter('states', $states, Connection::PARAM_STR_ARRAY));
+        }
+
+        $sql .= ' ORDER BY j.startedat LIMIT 1';
+        return $this->getJobManager()->createNativeQuery($sql, $rsm)
+            ->setParameters($params)
+            ->getOneOrNullResult();
+    }
+
     private function getRelatedEntityIdentifier($entity)
     {
         if ( ! is_object($entity)) {
