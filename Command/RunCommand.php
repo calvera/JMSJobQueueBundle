@@ -365,6 +365,7 @@ class RunCommand extends \Symfony\Bundle\FrameworkBundle\Command\ContainerAwareC
         }
         
         $proc = new Process($pb->getProcess()->getCommandLine());
+        $proc->setTimeout($job->getMaxRuntime());
         $proc->start();
         $this->output->writeln(sprintf('Started %s.', $job));
 
