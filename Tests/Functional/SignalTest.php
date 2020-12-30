@@ -12,7 +12,7 @@ class SignalTest extends TestCase
     public function testControlledExit()
     {
         if ( ! extension_loaded('pcntl')) {
-            $this->markTestSkipped('PCNTL extension is not loaded.');
+            self::markTestSkipped('PCNTL extension is not loaded.');
         }
 
         $proc = new Process('exec '.PHP_BINARY.' '.escapeshellarg(__DIR__.'/console').' jms-job-queue:run --worker-name=test --verbose --max-runtime=999999');
@@ -20,7 +20,7 @@ class SignalTest extends TestCase
 
         usleep(5E5);
 
-        $this->assertTrue($proc->isRunning(), 'Process exited prematurely: '.$proc->getOutput().$proc->getErrorOutput());
+        self::assertTrue($proc->isRunning(), 'Process exited prematurely: '.$proc->getOutput().$proc->getErrorOutput());
         $this->assertTrueWithin(
             3,
             function() use ($proc) { return false !== strpos($proc->getOutput(), 'Signal Handlers have been installed'); },
@@ -47,7 +47,7 @@ class SignalTest extends TestCase
             }
         );
 
-        $this->assertContains('All jobs finished, exiting.', $proc->getOutput());
+        self::assertStringContainsString('All jobs finished, exiting.', $proc->getOutput());
     }
 
     private function assertTrueWithin($seconds, callable $block, callable $failureHandler)
@@ -60,7 +60,7 @@ class SignalTest extends TestCase
 
             if (microtime(true) - $start >= $seconds) {
                 $failureHandler();
-                $this->fail('Failure handler did not raise an exception.');
+                self::fail('Failure handler did not raise an exception.');
             }
 
             usleep(2E5);

@@ -6,13 +6,13 @@ use Doctrine\ORM\Tools\SchemaValidator;
 
 class SchemaTest extends BaseTestCase
 {
-    public function testSchemaIsValid()
+    public function testSchemaIsValid(): void
     {
-        $this->createClient();
+        self::createClient();
         
         $validator = new SchemaValidator(self::$kernel->getContainer()->get('doctrine.orm.entity_manager'));
         $errors = $validator->validateMapping();
 
-        $this->assertEmpty($errors, "Validation errors found: \n\n".var_export($errors, true));
+        self::assertEmpty($errors, "Validation errors found: \n\n".var_export($errors, true));
     }
 }

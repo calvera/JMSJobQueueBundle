@@ -15,15 +15,15 @@ class CronTest extends BaseTestCase
     /** @var EntityManager */
     private $em;
 
-    public function testSchedulesCommands()
+    public function testSchedulesCommands(): void
     {
         $output = $this->doRun(array('--min-job-interval' => 1, '--max-runtime' => 12));
-        $this->assertEquals(2, substr_count($output, 'Scheduling command scheduled-every-few-seconds'), $output);
+        self::assertEquals(2, substr_count($output, 'Scheduling command scheduled-every-few-seconds'), $output);
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
-        $this->createClient(array('config' => 'persistent_db.yml'));
+        self::createClient(array('config' => 'persistent_db.yml'));
 
         if (is_file($databaseFile = self::$kernel->getCacheDir().'/database.sqlite')) {
             unlink($databaseFile);

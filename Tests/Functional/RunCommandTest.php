@@ -12,7 +12,7 @@ class RunCommandTest extends BaseTestCase
     private $app;
     private $em;
 
-    public function testRun()
+    public function testRun(): void
     {
         $a = new Job('adoigjaoisdjfijasodifjoiajsdf');
         $b = new Job('b', array('foo'));
@@ -24,37 +24,37 @@ class RunCommandTest extends BaseTestCase
         $output = $this->runConsoleCommand(array('--max-runtime' => 5, '--worker-name' => 'test'));
         $expectedOutput = "Started Job(id = 1, command = \"adoigjaoisdjfijasodifjoiajsdf\").\n"
                          ."Job(id = 1, command = \"adoigjaoisdjfijasodifjoiajsdf\") finished with exit code 1.\n";
-        $this->assertEquals($expectedOutput, $output);
-        $this->assertEquals('failed', $a->getState());
-        $this->assertEquals('', $a->getOutput());
-        $this->assertContains('Command "adoigjaoisdjfijasodifjoiajsdf" is not defined.', $a->getErrorOutput());
-        $this->assertEquals('canceled', $b->getState());
+        self::assertEquals($expectedOutput, $output);
+        self::assertEquals('failed', $a->getState());
+        self::assertEquals('', $a->getOutput());
+        self::assertStringContainsString('Command "adoigjaoisdjfijasodifjoiajsdf" is not defined.', $a->getErrorOutput());
+        self::assertEquals('canceled', $b->getState());
     }
 
-    public function testExitsAfterMaxRuntime()
+    public function testExitsAfterMaxRuntime(): void
     {
         $time = time();
         $output = $this->runConsoleCommand(array('--max-runtime' => 1, '--worker-name' => 'test'));
-        $this->assertEquals('', $output);
+        self::assertEquals('', $output);
 
         $runtime = time() - $time;
-        $this->assertTrue($runtime >= 2 && $runtime < 8);
+        self::assertTrue($runtime >= 2 && $runtime < 8);
     }
 
-    public function testSuccessfulCommand()
+    public function testSuccessfulCommand(): void
     {
         $job = new Job('jms-job-queue:successful-cmd');
         $this->em->persist($job);
         $this->em->flush($job);
 
         $this->runConsoleCommand(array('--max-runtime' => 1, '--worker-name' => 'test'));
-        $this->assertEquals('finished', $job->getState());
+        self::assertEquals('finished', $job->getState());
     }
 
     /**
      * @group queues
      */
-    public function testQueueWithLimitedConcurrentJobs()
+    public function testQueueWithLimitedConcurrentJobs(): void
     {
         $outputFile = tempnam(sys_get_temp_dir(), 'job-output');
         for ($i=0; $i<4; $i++) {
@@ -69,7 +69,7 @@ class RunCommandTest extends BaseTestCase
         $output = file_get_contents($outputFile);
         unlink($outputFile);
 
-        $this->assertEquals(<<<OUTPUT
+        self::assertEquals(<<<OUTPUT
 Job0 started
 Job0 stopped
 Job1 started
@@ -88,7 +88,7 @@ OUTPUT
     /**
      * @group queues
      */
-    public function testQueueWithMoreThanOneConcurrentJob()
+    public function testQueueWithMoreThanOneConcurrentJob(): void
     {
         $outputFile = tempnam(sys_get_temp_dir(), 'job-output');
         for ($i=0; $i<3; $i++) {
@@ -100,7 +100,7 @@ OUTPUT
         $output = $this->runConsoleCommand(array('--max-runtime' => 15, '--worker-name' => 'test'));
         unlink($outputFile);
 
-        $this->assertStringStartsWith(<<<OUTPUT
+        self::assertStringStartsWith(<<<OUTPUT
 Started Job(id = 1, command = "jms-job-queue:logging-cmd").
 Started Job(id = 2, command = "jms-job-queue:logging-cmd").
 OUTPUT
@@ -108,7 +108,7 @@ OUTPUT
             $output
         );
 
-        $this->assertStringStartsNotWith(<<<OUTPUT
+        self::assertStringStartsNotWith(<<<OUTPUT
 Started Job(id = 1, command = "jms-job-queue:logging-cmd").
 Started Job(id = 2, command = "jms-job-queue:logging-cmd").
 Started Job(id = 3, command = "jms-job-queue:logging-cmd").
@@ -121,7 +121,7 @@ OUTPUT
     /**
      * @group queues
      */
-    public function testSingleRestrictedQueue()
+    public function testSingleRestrictedQueue(): void
     {
         $a = new Job('jms-job-queue:successful-cmd');
         $b = new Job('jms-job-queue:successful-cmd', array(), true, 'other_queue');
@@ -132,15 +132,15 @@ OUTPUT
         $this->em->flush();
 
         $this->runConsoleCommand(array('--max-runtime' => 1, '--queue' => array('other_queue'), '--worker-name' => 'test'));
-        $this->assertEquals(Job::STATE_PENDING, $a->getState());
-        $this->assertEquals(Job::STATE_FINISHED, $b->getState());
-        $this->assertEquals(Job::STATE_PENDING, $c->getState());
+        self::assertEquals(Job::STATE_PENDING, $a->getState());
+        self::assertEquals(Job::STATE_FINISHED, $b->getState());
+        self::assertEquals(Job::STATE_PENDING, $c->getState());
     }
 
     /**
      * @group queues
      */
-    public function testMultipleRestrictedQueues()
+    public function testMultipleRestrictedQueues(): void
     {
         $a = new Job('jms-job-queue:successful-cmd');
         $b = new Job('jms-job-queue:successful-cmd', array(), true, 'other_queue');
@@ -151,15 +151,15 @@ OUTPUT
         $this->em->flush();
 
         $this->runConsoleCommand(array('--max-runtime' => 1, '--queue' => array('other_queue', 'yet_another_queue'), '--worker-name' => 'test'));
-        $this->assertEquals(Job::STATE_PENDING, $a->getState());
-        $this->assertEquals(Job::STATE_FINISHED, $b->getState());
-        $this->assertEquals(Job::STATE_FINISHED, $c->getState());
+        self::assertEquals(Job::STATE_PENDING, $a->getState());
+        self::assertEquals(Job::STATE_FINISHED, $b->getState());
+        self::assertEquals(Job::STATE_FINISHED, $c->getState());
     }
 
     /**
      * @group queues
      */
-    public function testNoRestrictedQueue()
+    public function testNoRestrictedQueue(): void
     {
         $a = new Job('jms-job-queue:successful-cmd');
         $b = new Job('jms-job-queue:successful-cmd', array(), true, 'other_queue');
@@ -170,15 +170,15 @@ OUTPUT
         $this->em->flush();
 
         $this->runConsoleCommand(array('--max-runtime' => 1, '--worker-name' => 'test'));
-        $this->assertEquals(Job::STATE_FINISHED, $a->getState());
-        $this->assertEquals(Job::STATE_FINISHED, $b->getState());
-        $this->assertEquals(Job::STATE_FINISHED, $c->getState());
+        self::assertEquals(Job::STATE_FINISHED, $a->getState());
+        self::assertEquals(Job::STATE_FINISHED, $b->getState());
+        self::assertEquals(Job::STATE_FINISHED, $c->getState());
     }
 
     /**
      * @group retry
      */
-    public function testRetry()
+    public function testRetry(): void
     {
         $job = new Job('jms-job-queue:sometimes-failing-cmd', array(time()));
         $job->setMaxRetries(5);
@@ -187,12 +187,12 @@ OUTPUT
 
         $this->runConsoleCommand(array('--max-runtime' => 12, '--verbose' => null, '--worker-name' => 'test'));
 
-        $this->assertEquals('finished', $job->getState());
-        $this->assertGreaterThan(0, count($job->getRetryJobs()));
-        $this->assertEquals(1, $job->getExitCode());
+        self::assertEquals('finished', $job->getState());
+        self::assertGreaterThan(0, count($job->getRetryJobs()));
+        self::assertEquals(1, $job->getExitCode());
     }
 
-    public function testJobIsTerminatedIfMaxRuntimeIsExceeded()
+    public function testJobIsTerminatedIfMaxRuntimeIsExceeded(): void
     {
         $job = new Job('jms-job-queue:never-ending');
         $job->setMaxRuntime(1);
@@ -200,13 +200,13 @@ OUTPUT
         $this->em->flush($job);
 
         $this->runConsoleCommand(array('--max-runtime' => 1, '--worker-name' => 'test'));
-        $this->assertEquals('terminated', $job->getState());
+        self::assertEquals('terminated', $job->getState());
     }
 
     /**
      * @group priority
      */
-    public function testJobsWithHigherPriorityAreStartedFirst()
+    public function testJobsWithHigherPriorityAreStartedFirst(): void
     {
         $job = new Job('jms-job-queue:successful-cmd');
         $this->em->persist($job);
@@ -217,7 +217,7 @@ OUTPUT
 
         $output = $this->runConsoleCommand(array('--max-runtime' => 4, '--worker-name' => 'test'));
 
-        $this->assertEquals(<<<OUTPUT
+        self::assertEquals(<<<OUTPUT
 Started Job(id = 2, command = "jms-job-queue:successful-cmd").
 Job(id = 2, command = "jms-job-queue:successful-cmd") finished with exit code 0.
 Started Job(id = 1, command = "jms-job-queue:successful-cmd").
@@ -232,7 +232,7 @@ OUTPUT
     /**
      * @group priority
      */
-    public function testJobsAreStartedInCreationOrderWhenPriorityIsEqual()
+    public function testJobsAreStartedInCreationOrderWhenPriorityIsEqual(): void
     {
         $job = new Job('jms-job-queue:successful-cmd', array(), true, Job::DEFAULT_QUEUE, Job::PRIORITY_HIGH);
         $this->em->persist($job);
@@ -243,7 +243,7 @@ OUTPUT
 
         $output = $this->runConsoleCommand(array('--max-runtime' => 4, '--worker-name' => 'test'));
 
-        $this->assertEquals(<<<OUTPUT
+        self::assertEquals(<<<OUTPUT
 Started Job(id = 1, command = "jms-job-queue:successful-cmd").
 Job(id = 1, command = "jms-job-queue:successful-cmd") finished with exit code 0.
 Started Job(id = 2, command = "jms-job-queue:successful-cmd").
@@ -259,26 +259,26 @@ OUTPUT
     /**
      * @group exception
      */
-    public function testExceptionStackTraceIsSaved()
+    public function testExceptionStackTraceIsSaved(): void
     {
         $job = new Job('jms-job-queue:throws-exception-cmd');
         $this->em->persist($job);
         $this->em->flush($job);
 
-        $this->assertNull($job->getStackTrace());
-        $this->assertNull($job->getMemoryUsage());
-        $this->assertNull($job->getMemoryUsageReal());
+        self::assertNull($job->getStackTrace());
+        self::assertNull($job->getMemoryUsage());
+        self::assertNull($job->getMemoryUsageReal());
 
         $this->runConsoleCommand(array('--max-runtime' => 1, '--worker-name' => 'test'));
 
-        $this->assertNotNull($job->getStackTrace());
-        $this->assertNotNull($job->getMemoryUsage());
-        $this->assertNotNull($job->getMemoryUsageReal());
+        self::assertNotNull($job->getStackTrace());
+        self::assertNotNull($job->getMemoryUsage());
+        self::assertNotNull($job->getMemoryUsageReal());
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
-        $this->createClient(array('config' => 'persistent_db.yml'));
+        self::createClient(array('config' => 'persistent_db.yml'));
 
         if (is_file($databaseFile = self::$kernel->getCacheDir().'/database.sqlite')) {
             unlink($databaseFile);

@@ -6,7 +6,6 @@
 
     <parameters>
         <parameter key="jms_job_queue.entity.many_to_any_listener.class">JMS\JobQueueBundle\Entity\Listener\ManyToAnyListener</parameter>
-        <parameter key="jms_job_queue.twig.extension.class">JMS\JobQueueBundle\Twig\JobQueueExtension</parameter>
         <parameter key="jms_job_queue.retry_scheduler.class">JMS\JobQueueBundle\Retry\ExponentialRetryScheduler</parameter>
         <parameter key="jms_job_queue.job_manager.class">JMS\JobQueueBundle\Entity\Repository\JobManager</parameter>
     </parameters>
@@ -20,10 +19,6 @@
             <tag name="doctrine.event_listener" lazy="true" event="postLoad" />
             <tag name="doctrine.event_listener" lazy="true" event="postPersist" />
             <tag name="doctrine.event_listener" lazy="true" event="preRemove" />
-        </service>
-
-        <service id="jms_job_queue.twig.extension" class="%jms_job_queue.twig.extension.class%">
-            <tag name="twig.extension" />
         </service>
 
         <service id="jms_job_queue.job_manager" class="%jms_job_queue.job_manager.class%" public="true">

@@ -38,34 +38,34 @@ class RunCommand extends Command
     protected static $defaultName = 'jms-job-queue:run';
 
     /** @var string */
-    private $env;
+    private string $env;
 
     /** @var boolean */
-    private $verbose;
+    private bool $verbose;
 
     /** @var OutputInterface */
-    private $output;
+    private OutputInterface $output;
 
     /** @var ManagerRegistry */
-    private $registry;
+    private ManagerRegistry $registry;
 
     /** @var JobManager */
-    private $jobManager;
+    private JobManager $jobManager;
 
     /** @var EventDispatcherInterface */
-    private $dispatcher;
+    private EventDispatcherInterface $dispatcher;
 
     /** @var array */
-    private $runningJobs = array();
+    private array $runningJobs = array();
 
     /** @var bool */
-    private $shouldShutdown = false;
+    private bool $shouldShutdown = false;
 
     /** @var array */
-    private $queueOptionsDefault;
+    private array $queueOptionsDefault;
 
     /** @var array */
-    private $queueOptions;
+    private array $queueOptions;
 
     public function __construct(ManagerRegistry $managerRegistry, JobManager $jobManager, EventDispatcherInterface $dispatcher, array $queueOptionsDefault, array $queueOptions)
     {

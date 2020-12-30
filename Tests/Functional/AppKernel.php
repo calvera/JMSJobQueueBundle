@@ -37,45 +37,44 @@ class AppKernel extends Kernel
         $this->config = $config;
     }
 
-    public function registerBundles()
+    public function registerBundles(): array
     {
         return array(
             new \Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
             new \Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
             new \Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle(),
-            new \Symfony\Bundle\TwigBundle\TwigBundle(),
 
             new \JMS\JobQueueBundle\Tests\Functional\TestBundle\TestBundle(),
             new \JMS\JobQueueBundle\JMSJobQueueBundle(),
         );
     }
 
-    public function registerContainerConfiguration(LoaderInterface $loader)
+    public function registerContainerConfiguration(LoaderInterface $loader): void
     {
         $loader->load($this->config);
     }
 
-    public function getCacheDir()
+    public function getCacheDir(): string
     {
         return sys_get_temp_dir().'/'.Kernel::VERSION.'/JMSJobQueueBundle/'.substr(sha1($this->config), 0, 6).'/cache';
     }
 
-    public function getContainerClass()
+    public function getContainerClass(): string
     {
         return parent::getContainerClass().'_'.substr(sha1($this->config), 0, 6);
     }
 
-    public function getLogDir()
+    public function getLogDir(): string
     {
         return sys_get_temp_dir().'/'.Kernel::VERSION.'/JMSJobQueueBundle/'.substr(sha1($this->config), 0, 6).'/logs';
     }
 
-    public function serialize()
+    public function serialize(): string
     {
         return $this->config;
     }
 
-    public function unserialize($config)
+    public function unserialize($config): void
     {
         $this->__construct($config);
     }
